@@ -1,39 +1,36 @@
 # monitor-logs.ps1
 
-# Create alerts folder if it doesn't exist
-$alertPath = "alerts"
-if (-not (Test-Path $alertPath)) {
-    New-Item -ItemType Directory -Path $alertPath | Out-Null
+$logName = "Security"
+$alertDir = "alerts"
+if (!(Test-Path $alertDir)) {
+    New-Item -Path $alertDir -ItemType Directory | Out-Null
 }
 
-# Output file for alerts
-$outputFile = Join-Path $alertPath "alert-log.txt"
-New-Item -Path $outputFile -ItemType File -Force | Out-Null
-Add-Content -Path $outputFile -Value "==== Security Alerts ===="
-
-# Simulate reading the Security Event Log
-$events = Get-WinEvent -LogName Security -MaxEvents 1000
+# Load event logs
+$events = Get-WinEvent -LogName $logName -MaxEvents 1000
 
 foreach ($event in $events) {
-    $eventId = $event.Id
-    $timestamp = $event.TimeCreated
-    $message = $event.Message.Substring(0, [Math]::Min(60, $event.Message.Length))
+    $msg = $event.Message
+    $id = $event.Id
 
-    switch ($eventId) {
-        4625 {
-            $alert = "Brute-force login failure: $timestamp - $message"
-        }
-        4740 {
-            $alert = "Account lockout: $timestamp - $message"
-        }
-        4672 {
-            $alert = "Privileged account logon: $timestamp - $message"
-        }
-        default {
-            continue
-        }
+    # Brute-force login detection (Event ID 4625)
+    if ($id -eq 4625 -and $msg -match "Account Name:\s+(\S+)") {
+        $username = $matches[1]
+        $alert = "[ALERT] Brute-force attempt detected for user $username"
+        Add-Content -Path "$alertDir\\brute_force.log" -Value $alert
     }
 
-    Write-Output $alert
-    Add-Content -Path $outputFile -Value $alert
+    # Account lockout detection (Event ID 4740)
+    elseif ($id -eq 4740 -and $msg -match "Account Name:\s+(\S+)") {
+        $lockedUser = $matches[1]
+        $alert = "[ALERT] Account locked out: $lockedUser"
+        Add-Content -Path "$alertDir\\account_lockouts.log" -Value $alert
+    }
+
+    # Privilege escalation detection (Event ID 4732)
+    elseif ($id -eq 4732 -and $msg -match "Member Name:\s+(\S+)") {
+        $newAdmin = $matches[1]
+        $alert = "[ALERT] User added to Administrators group: $newAdmin"
+        Add-Content -Path "$alertDir\\privilege_escalation.log" -Value $alert
+    }
 }
