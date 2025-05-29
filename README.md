@@ -32,12 +32,6 @@ This project monitors Windows Server event logs for suspicious activity using Po
 [ALERT] Multiple account lockouts for user svc_account
 [ALERT] User added to Administrators group: temp_user
 
-## Usage
-
-1. Clone the repository:
-git clone https://github.com/JAudisho/windows-log-monitoring.git
-cd windows-log-monitoring
-
 2. Launch the script in PowerShell:
 .\monitor-logs.ps1
 
