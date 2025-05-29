@@ -31,8 +31,3 @@ This project monitors Windows Server event logs for suspicious activity using Po
 [ALERT] Brute-force attempt detected for user Administrator from IP 192.168.1.100
 [ALERT] Multiple account lockouts for user svc_account
 [ALERT] User added to Administrators group: temp_user
-
-2. Launch the script in PowerShell:
-.\monitor-logs.ps1
-
-3. Monitor the `alerts/` folder for suspicious activity.
