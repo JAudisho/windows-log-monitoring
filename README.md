@@ -13,12 +13,6 @@ This project monitors Windows Server event logs for suspicious activity using Po
 - Designed for use in Splunk or other SIEM pipelines
 - Lightweight, easily customizable PowerShell script
 
-## 📁 File Structure
-
-- `monitor-logs.ps1`: Main PowerShell script
-- `sample-events.evtx`: Sample logs for testing
-- `alerts/`: Directory where alerts are written
-
 ## 🧠 Technologies Used
 
 - PowerShell
